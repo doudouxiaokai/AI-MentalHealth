@@ -22,18 +22,7 @@
 
 ## 技术栈
 
-| 分类 | 技术 |
-| --- | --- |
-| 语言 / 运行时 | Java 17、Node.js 18+ |
-| 后端框架 | Spring Boot 3.5.15、Spring Web |
-| AI 能力 | Spring AI 1.0.0-SNAPSHOT、ChatClient、DeepSeek-V3（硅基流动 OpenAI 兼容接口） |
-| 持久层 | MyBatis-Plus 3.5.7、MySQL 8 |
-| 安全 | Spring Security（无状态）、java-jwt 4.4.0（HMAC256）、BCrypt |
-| 流式通信 | Reactor Flux + SSE（`text/event-stream`） |
-| 工具库 | Hutool 5.8.25、Spring Validation、Lombok |
-| 前端框架 | Vue 3.5、Vite 7、Vue Router 4、Pinia 3 |
-| UI / 可视化 | Element Plus 2.13、ECharts 6、wangEditor 5、Sass |
-| 网络 | Axios 1.13、@microsoft/fetch-event-source 2.0.1 |
+Java · Spring Boot · Spring AI · Spring Security · JWT · MyBatis-Plus · MySQL · SSE 流式输出 · Vue · Pinia · Element Plus · ECharts · wangEditor
 
 ## 目录结构
 

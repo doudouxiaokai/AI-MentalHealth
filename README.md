@@ -41,15 +41,18 @@ AI-MentalHealth/
 │   │   └── common/                # 统一响应 Result、错误码、全局异常处理
 │   └── src/main/resources/
 │       └── application.yml        # 数据库、AI 模型、JWT 配置
-└── ai-vue/                        # 前端（Vue 3 + Vite）
-    ├── src/
-    │   ├── api/                   # 接口封装（frontend.js 用户端 / admin.js 管理端）
-    │   ├── components/            # 布局、富文本、Markdown 渲染、侧边栏等
-    │   ├── views/                 # 页面：咨询、情绪日记、知识库、看板等
-    │   ├── router/                # 路由与登录守卫（按 userType 分流）
-    │   ├── stores/                # Pinia
-    │   └── utils/request.js       # Axios 实例与拦截器
-    └── vite.config.js             # 开发代理
+├── ai-vue/                        # 前端（Vue 3 + Vite）
+│   ├── src/
+│   │   ├── api/                   # 接口封装（frontend.js 用户端 / admin.js 管理端）
+│   │   ├── components/            # 布局、富文本、Markdown 渲染、侧边栏等
+│   │   ├── views/                 # 页面：咨询、情绪日记、知识库、看板等
+│   │   ├── router/                # 路由与登录守卫（按 userType 分流）
+│   │   ├── stores/                # Pinia
+│   │   └── utils/request.js       # Axios 实例与拦截器
+│   └── vite.config.js             # 开发代理
+├── sql/
+│   └── schema.sql                 # 数据库结构（9 张表，含索引与外键）
+└── docs/                          # 技术文档 / 项目指南 / 面试问答
 ```
 
 ## 快速开始
@@ -63,50 +66,31 @@ AI-MentalHealth/
 
 ### 2. 初始化数据库
 
-```sql
-CREATE DATABASE mental_health_assistant
-  DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+直接导入仓库内的结构文件（9 张表，含索引与外键，**不含测试数据**）：
 
-USE mental_health_assistant;
+```bash
+# 1. 创建数据库
+mysql -u root -p -e "CREATE DATABASE mental_health_assistant DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-CREATE TABLE `user` (
-  id          BIGINT PRIMARY KEY AUTO_INCREMENT,
-  username    VARCHAR(50)  NOT NULL UNIQUE,
-  email       VARCHAR(100) UNIQUE,
-  phone       VARCHAR(20),
-  password    VARCHAR(100) NOT NULL,
-  nickname    VARCHAR(50),
-  avatar      VARCHAR(255),
-  gender      TINYINT,
-  birthday    DATE,
-  user_type   TINYINT DEFAULT 1 COMMENT '1=用户端 2=管理端',
-  status      TINYINT DEFAULT 1 COMMENT '1=正常 0=禁用',
-  created_at  DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-);
-
-CREATE TABLE consultation_session (
-  id                       BIGINT PRIMARY KEY AUTO_INCREMENT,
-  user_id                  BIGINT NOT NULL,
-  session_title            VARCHAR(100),
-  started_at               DATETIME,
-  last_emotion_analysis    TEXT,
-  last_emotion_updated_at  DATETIME,
-  KEY idx_user (user_id)
-);
-
-CREATE TABLE consultation_message (
-  id           BIGINT PRIMARY KEY AUTO_INCREMENT,
-  session_id   BIGINT NOT NULL,
-  sender_type  TINYINT COMMENT '1=用户 2=AI',
-  message_type TINYINT,
-  content      TEXT,
-  emotion_tag  VARCHAR(50),
-  ai_model     VARCHAR(50),
-  created_at   DATETIME DEFAULT CURRENT_TIMESTAMP,
-  KEY idx_session (session_id)
-);
+# 2. 导入表结构
+mysql -u root -p mental_health_assistant < sql/schema.sql
 ```
+
+表清单：
+
+| 表 | 说明 | 后端已实现 |
+| --- | --- | --- |
+| `user` | 用户（普通用户 / 管理员） | ✅ |
+| `consultation_session` | 咨询会话，含最后一次情绪分析 JSON | ✅ |
+| `consultation_message` | 会话消息流水 | ✅ |
+| `emotion_diary` | 情绪日记，一人一天一篇 | ❌ 表已建 |
+| `ai_analysis_task` | AI 分析异步任务（状态机 + 重试 + 优先级） | ❌ 表已建 |
+| `knowledge_category` | 知识文章分类 | ❌ 表已建 |
+| `knowledge_article` | 知识文章（UUID 主键、富文本） | ❌ 表已建 |
+| `user_favorite` | 文章收藏 | ❌ 表已建 |
+| `sys_file_info` | 通用文件表（多态关联业务对象） | ❌ 表已建 |
+
+> 标注 ❌ 的表结构已设计并有历史数据，但对应 Java 实体与接口尚未提交，前端相关页面暂时会请求失败。
 
 ### 3. 启动后端
 
